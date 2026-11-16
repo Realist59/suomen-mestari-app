@@ -24,11 +24,47 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+        /* --- Поле поиска --- */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            margin-bottom: 10px; /* Такой же отступ, как между кнопками в сетке */
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 14px 14px 45px; /* Слева отступ больше для иконки */
+            border: none;
+            border-radius: 50px; /* Форма капсулы, как у кнопок */
+            font-size: 15px;
+            font-family: inherit;
+            color: #333;
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-input::placeholder {
+            color: #999;
+        }
+
+        /* Иконка лупы */
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+            pointer-events: none; /* Чтобы клик проходил сквозь иконку в поле ввода */
+        }
+
+        /* --- Заголовок --- */
         .menu-title {
             font-size: 28px;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 35px; /* Чуть больше отступ от поиска до заголовка */
             letter-spacing: 0.5px;
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -40,6 +76,7 @@
             color: #ffffff;
         }
 
+        /* --- Кнопки --- */
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -49,7 +86,6 @@
             margin-bottom: 10px;
         }
 
-        /* Общие стили для всех кнопок */
         .btn-chapter, .btn-answers {
             background-color: #275d9d; 
             color: #ffffff;
@@ -65,7 +101,6 @@
             white-space: nowrap;
         }
 
-        /* Обертка для центрирования */
         .answers-wrapper {
             display: flex;
             justify-content: center;
@@ -73,7 +108,6 @@
             max-width: 340px;
         }
 
-        /* Кнопка "Ответы" — размер как у обычной кнопки */
         .btn-answers {
             width: calc(33.333% - 7px);
         }
@@ -86,12 +120,20 @@
 </head>
 <body>
 
+    <!-- Поле поиска -->
+    <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Поиск...">
+    </div>
+
+    <!-- Заголовок -->
     <div class="menu-title">
         <span class="color-blue">Suomen</span> 
         <span class="color-white">Mestari</span> 
         <span class="color-blue">1</span>
     </div>
     
+    <!-- Сетка кнопок -->
     <div class="buttons-grid">
         <button class="btn-chapter" onclick="openChapter(1)">Kappale 1</button>
         <button class="btn-chapter" onclick="openChapter(2)">Kappale 2</button>
@@ -106,7 +148,6 @@
         <button class="btn-chapter" onclick="openChapter(9)">Kappale 9</button>
     </div>
 
-    <!-- Кнопка Vastaukset по центру -->
     <div class="answers-wrapper">
         <button class="btn-answers" onclick="openAnswers()">Vastaukset</button>
     </div>
