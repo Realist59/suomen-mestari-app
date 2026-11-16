@@ -38,50 +38,50 @@ const bookData = {
                 <p style="margin-bottom: 8px;"><b>Opettaja:</b> Kurssipäivät ovat maanantai, keskiviikko ja torstai. Kurssi on kello 18-20.</p>
             </div>
             `,
-            // СТРАНИЦА 3
+            // СТРАНИЦА 3 (Только финский словарь)
             `
             <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Sanasto</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 15px; line-height: 1.5;">
-                <p>Hei! — Привет!</p><p>ja — и</p>
-                <p>Tervetuloa! — Добро пожаловать!</p><p>Anteeksi! — Извините!</p>
-                <p>onko — есть ли</p><p>täällä — здесь</p>
-                <p>suomen kurssi — курс финского</p><p>joo — да</p>
-                <p>olla — быть</p><p>tämä — это</p>
-                <p>paikka — место</p><p>vapaa — свободный</p>
-                <p>kiva — классно</p><p>minä — я</p>
-                <p>kuka — кто</p><p>Mitä kuuluu? — Как дела?</p>
-                <p>Terve! — Привет!</p><p>Kiitos! — Спасибо!</p>
-                <p>Minulle kuuluu hyvää. — У меня всё хорошо.</p><p>Entä sinulle? — А тебе?</p>
-                <p>Ihan hyvää, kiitos. — Довольно хорошо, спасибо.</p><p>tässä — здесь (вот)</p>
-                <p>minun — мой</p><p>nimi — имя</p>
-                <p>opettaja — учитель</p><p>Miten se kirjoitetaan? — Как это пишется?</p>
-                <p>etunimi — имя</p><p>sukunimi — фамилия</p>
-                <p>okei — окей</p><p>kurssipäivä — день курса</p>
-                <p>sinä — ты</p><p>Hauska tutustua! — Приятно познакомиться!</p>
-                <p>Kiitos samoin! — Взаимно!</p><p>Moi! — Привет!</p>
-                <p>maanantai — понедельник</p><p>keskiviikko — среда</p>
-                <p>torstai — четверг</p><p>kello — час / время</p>
+                <p>Hei!</p><p>ja</p>
+                <p>Tervetuloa!</p><p>Anteeksi!</p>
+                <p>onko</p><p>täällä</p>
+                <p>suomen kurssi</p><p>joo</p>
+                <p>olla</p><p>tämä</p>
+                <p>paikka</p><p>vapaa</p>
+                <p>kiva</p><p>minä</p>
+                <p>kuka</p><p>Mitä kuuluu?</p>
+                <p>Terve!</p><p>Kiitos!</p>
+                <p>Minulle kuuluu hyvää.</p><p>Entä sinulle?</p>
+                <p>Ihan hyvää, kiitos.</p><p>tässä</p>
+                <p>minun</p><p>nimi</p>
+                <p>opettaja</p><p>Miten se kirjoitetaan?</p>
+                <p>etunimi</p><p>sukunimi</p>
+                <p>okei</p><p>kurssipäivä</p>
+                <p>sinä</p><p>Hauska tutustua!</p>
+                <p>Kiitos samoin!</p><p>Moi!</p>
+                <p>maanantai</p><p>keskiviikko</p>
+                <p>torstai</p><p>kello</p>
             </div>
             `,
             // СТРАНИЦА 4
             `
             <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Fraasit</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 15px; line-height: 1.5;">
-                <p>Hyvää huomenta! — Доброе утро!</p><p>Iltaa! — Вечер!</p>
-                <p>Huomenta! — Утро!</p><p>Päivää! — День!</p>
-                <p>Hyvää päivää! — Добрый день!</p><p>Hyvää iltaa! — Добрый вечер!</p>
-                <p>Hyvää yötä! — Доброй ночи!</p><p>Nuku hyvin! — Спи хорошо!</p>
-                <p>Hei hei! — Пока!</p><p>Nähdään! — Увидимся!</p>
-                <p>Moi moi! — Пока!</p><p>Heippa! — Пока!</p>
-                <p>Näkemiin! — До свидания!</p><p>Ole hyvä! — Пожалуйста!</p>
-                <p>Joo. — Да.</p><p>Ei kestä! — Не за что!</p>
-                <p>Ei. — Нет.</p><p>Kyllä. — Да.</p>
-                <p>Nähdään huomenna! — Увидимся завтра!</p><p>Moikka! — Пока!</p>
-                <p>Tervetuloa! — Добро пожаловать!</p><p>Anteeksi! — Извините!</p>
-                <p>Ei se mitään! — Ничего страшного!</p><p>Kiitos! — Спасибо!</p>
-                <p>Hyvää ruokahalua! — Приятного аппетита!</p><p>Kiitos ruoasta! — Спасибо за еду!</p>
-                <p>Kiitos, oli hyvää. — Спасибо, было вкусно.</p><p>Kippis! — Чок! (Тост)</p>
-                <p>Skool! — Чок! (Тост)</p>
+                <p>Hyvää huomenta!</p><p>Iltaa!</p>
+                <p>Huomenta!</p><p>Päivää!</p>
+                <p>Hyvää päivää!</p><p>Hyvää iltaa!</p>
+                <p>Hyvää yötä!</p><p>Nuku hyvin!</p>
+                <p>Hei hei!</p><p>Nähdään!</p>
+                <p>Moi moi!</p><p>Heippa!</p>
+                <p>Näkemiin!</p><p>Ole hyvä!</p>
+                <p>Joo.</p><p>Ei kestä!</p>
+                <p>Ei.</p><p>Kyllä.</p>
+                <p>Nähdään huomenna!</p><p>Moikka!</p>
+                <p>Tervetuloa!</p><p>Anteeksi!</p>
+                <p>Ei se mitään!</p><p>Kiitos!</p>
+                <p>Hyvää ruokahalua!</p><p>Kiitos ruoasta!</p>
+                <p>Kiitos, oli hyvää.</p><p>Kippis!</p>
+                <p>Skool!</p>
             </div>
             `,
             // СТРАНИЦА 5
@@ -89,27 +89,27 @@ const bookData = {
             <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Viikonpäivät</h2>
             <p style="font-size: 16px; margin-bottom: 10px; font-style: italic;">Mikä päivä tänään on?</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 15px; line-height: 1.5;">
-                <p>maanantai (ma) — понедельник</p><p>maanantaina — в понедельник</p>
-                <p>tiistai (ti) — вторник</p><p>tiistaina — во вторник</p>
-                <p>keskiviikko (ke) — среда</p><p>keskiviikkona — в среду</p>
-                <p>torstai (to) — четверг</p><p>torstaina — в четверг</p>
-                <p>perjantai (pe) — пятница</p><p>perjantaina — в пятницу</p>
-                <p>lauantai (la) — суббота</p><p>lauantaina — в субботу</p>
-                <p>sunnuntai (su) — воскресенье</p><p>sunnuntaina — в воскресенье</p>
-                <p>viikonloppu (la ja su) — выходные</p><p>viikonloppuna — на выходных</p>
+                <p>maanantai (ma)</p><p>maanantaina</p>
+                <p>tiistai (ti)</p><p>tiistaina</p>
+                <p>keskiviikko (ke)</p><p>keskiviikkona</p>
+                <p>torstai (to)</p><p>torstaina</p>
+                <p>perjantai (pe)</p><p>perjantaina</p>
+                <p>lauantai (la)</p><p>lauantaina</p>
+                <p>sunnuntai (su)</p><p>sunnuntaina</p>
+                <p>viikonloppu (la ja su)</p><p>viikonloppuna</p>
             </div>
             <p style="margin-top: 20px; font-size: 16px; line-height: 1.6;">
-                toissapäivänä — позавчера<br>
-                eilen — вчера<br>
-                TÄNÄÄN — СЕГОДНЯ<br>
-                huomenna — завтра<br>
-                ylihuomenna — послезавтра
+                toissapäivänä<br>
+                eilen<br>
+                TÄNÄÄN<br>
+                huomenna<br>
+                ylihuomenna
             </p>
-            <p style="margin-top: 20px; font-size: 16px;"><b>Milloin?</b> — Когда?</p>
+            <p style="margin-top: 20px; font-size: 16px;"><b>Milloin?</b></p>
             `,
             // СТРАНИЦА 6
             `
-            <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Aakkoset (Алфавит)</h2>
+            <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Aakkoset</h2>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 16px; line-height: 1.5; text-align: center;">
                 <div><b>A</b> [aa]</div><div><b>B</b> [bee]</div><div><b>C</b> [see]</div>
                 <div><b>D</b> [dee]</div><div><b>E</b> [ee]</div><div><b>F</b> [äf]</div>
@@ -157,15 +157,14 @@ const bookData = {
                 <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px;">te</td><td style="padding: 8px;">olette</td></tr>
                 <tr><td style="padding: 8px;">he / ne</td><td style="padding: 8px;">ovat</td></tr>
             </table>
-            <h3 style="color: #005a9c; margin-bottom: 10px;">Puhekieli (Разговорный язык)</h3>
+            <h3 style="color: #005a9c; margin-bottom: 10px;">Puhekieli</h3>
             <p style="font-size: 16px; line-height: 1.6;">
-                mä oon (я есть)<br>sä oot (ты есть)<br>se on (он/она есть)<br>me ollaan (мы есть)<br>te ootte (вы есть)<br>ne on (они есть)
+                mä oon<br>sä oot<br>se on<br>me ollaan<br>te ootte<br>ne on
             </p>
             `,
             // СТРАНИЦА 9
             `
             <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Ääntäminen: vokaalit</h2>
-            <p style="font-size: 16px; margin-bottom: 15px;">В финском языке 8 гласных, и они могут быть краткими или долгими (двойными).</p>
             <div style="font-size: 16px; line-height: 1.8;">
                 <p><b>a</b> — sana, <b>aa</b> — aamu</p><p><b>e</b> — terve, <b>ee</b> — anteeksi</p>
                 <p><b>i</b> — tili, <b>ii</b> — tiili</p><p><b>o</b> — ovi, <b>oo</b> — koodi</p>
@@ -176,24 +175,22 @@ const bookData = {
             // СТРАНИЦА 10
             `
             <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Vokaaliharmonia</h2>
-            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">В финском языке слова делятся на две группы по гласным:</p>
             <div style="display: flex; gap: 20px; margin-bottom: 20px;">
                 <div style="flex: 1; background: #eef4fa; padding: 15px; border-radius: 8px;">
-                    <h3 style="color: #005a9c; margin-bottom: 10px;">Задние гласные (a, o, u)</h3>
+                    <h3 style="color: #005a9c; margin-bottom: 10px;">a, o, u</h3>
                     <p>auto<br>tutustua<br>hauska</p>
                 </div>
                 <div style="flex: 1; background: #fdf2f2; padding: 15px; border-radius: 8px;">
-                    <h3 style="color: #9c0000; margin-bottom: 10px;">Передние гласные (ä, ö, y)</h3>
+                    <h3 style="color: #9c0000; margin-bottom: 10px;">ä, ö, y</h3>
                     <p>hyvä<br>säästää<br>yö</p>
                 </div>
             </div>
-            <p style="font-size: 16px; line-height: 1.6;"><b>Нейтральные:</b> e, i (могут быть с любыми).</p>
-            <p style="font-size: 16px; line-height: 1.6; margin-top: 10px;">Примеры: <b>tie, sinä, anteeksi, kurssi, kieli, päivä</b>.</p>
+            <p style="font-size: 16px; line-height: 1.6;">e, i</p>
+            <p style="font-size: 16px; line-height: 1.6; margin-top: 10px;"><b>tie, sinä, anteeksi, kurssi, kieli, päivä</b>.</p>
             `,
             // СТРАНИЦА 11
             `
             <h2 style="color: #005a9c; font-size: 22px; margin-bottom: 15px;">Yhdyssanat</h2>
-            <p style="font-size: 16px; line-height: 1.6;">Сложные слова (два слова вместе):</p>
             <ul style="font-size: 16px; line-height: 1.8; padding-left: 20px;">
                 <li>suklaajäätelö + ssa/ssä → suklaajäätelössä</li>
                 <li>jäätelökioski + lla/llä → jäätelökioskilla</li>
