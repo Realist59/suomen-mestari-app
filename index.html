@@ -46,9 +46,10 @@
             gap: 10px;
             width: 100%;
             max-width: 340px;
+            margin-bottom: 10px; /* Отступ между сеткой и кнопкой Vastaukset */
         }
 
-        .btn-chapter {
+        .btn-chapter, .btn-answers {
             background-color: #275d9d; 
             color: #ffffff;
             border: none;
@@ -63,7 +64,22 @@
             white-space: nowrap;
         }
 
-        .btn-chapter:active {
+        /* Обертка для центрирования кнопки Vastaukset */
+        .answers-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 340px;
+        }
+
+        /* Кнопка "Ответы" — делаем ширину как у одной колонки в сетке */
+        .btn-answers {
+            width: calc(33.333% - 7px); /* Треть ширины сетки минус отступ */
+            padding: 14px 5px; /* Как у обычных кнопок */
+            text-transform: uppercase;
+        }
+
+        .btn-chapter:active, .btn-answers:active {
             transform: scale(0.96);
             background-color: #1e4a7a; 
         }
@@ -91,12 +107,21 @@
         <button class="btn-chapter" onclick="openChapter(9)">Kappale 9</button>
     </div>
 
+    <!-- Новая кнопка Vastaukset по центру -->
+    <div class="answers-wrapper">
+        <button class="btn-answers" onclick="openAnswers()">Vastaukset</button>
+    </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         function openChapter(num) {
             alert("Открываем Kappale " + num);
+        }
+
+        function openAnswers() {
+            alert("Открываем ответы (Vastaukset)");
         }
     </script>
 </body>
