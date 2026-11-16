@@ -28,31 +28,34 @@
         .search-container {
             position: relative;
             width: 100%;
-            max-width: 260px; /* Сделал покороче (было 340px) */
-            margin-bottom: 25px; /* Увеличил отступ, чтобы поднять выше */
-            margin-top: -20px; /* Чуть поднял вверх от центра */
+            max-width: 260px; 
+            margin-bottom: 25px; 
+            margin-top: -20px; 
         }
 
         .search-input {
             width: 100%;
-            padding: 12px 12px 12px 40px; /* Сделал чуть тоньше по высоте (12px вместо 14px) */
+            /* Убрал большой левый отступ, сделал одинаковые отступы, чтобы текст встал по центру */
+            padding: 12px 40px; 
             border: none;
             border-radius: 50px;
             font-size: 15px;
             font-family: inherit;
             color: #333;
             outline: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Чуть мягче тень */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
             transition: box-shadow 0.3s ease;
+            text-align: center; /* Выравнивание текста по центру */
         }
 
         .search-input:focus {
-            box-shadow: 0 4px 15px rgba(39, 93, 157, 0.3); /* Подсветка при вводе */
+            box-shadow: 0 4px 15px rgba(39, 93, 157, 0.3); 
         }
 
         .search-input::placeholder {
             color: #999;
             font-size: 14px;
+            text-align: center; /* Плейсхолдер тоже по центру */
         }
 
         /* Иконка лупы */
@@ -127,10 +130,10 @@
 </head>
 <body>
 
-    <!-- Поле поиска (теперь компактнее и выше) -->
+    <!-- Поле поиска -->
     <div class="search-container">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Поиск по словам...">
+        <input type="text" class="search-input" placeholder="Введите ваш запрос">
     </div>
 
     <!-- Заголовок -->
