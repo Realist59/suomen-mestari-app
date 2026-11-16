@@ -10,7 +10,8 @@
 
         body {
             height: 100vh;
-            background: #5ab1df;
+            /* Запасной фон, если картинка не загрузится */
+            background: linear-gradient(135deg, #5ab1df, #2e86c1);
             display: flex;
             align-items: flex-end;
             justify-content: center;
@@ -30,7 +31,7 @@
         .cover::before {
             content: "";
             position: absolute;
-            inset: -30px;               /* запас, чтобы блюр не давал светлую кромку */
+            inset: -30px;
             background: url('front-page.jpg') center / cover no-repeat;
             filter: blur(30px);
             z-index: -1;
