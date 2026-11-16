@@ -46,9 +46,10 @@
             gap: 10px;
             width: 100%;
             max-width: 340px;
-            margin-bottom: 10px; /* Отступ между сеткой и кнопкой Vastaukset */
+            margin-bottom: 10px;
         }
 
+        /* Общие стили для всех кнопок */
         .btn-chapter, .btn-answers {
             background-color: #275d9d; 
             color: #ffffff;
@@ -64,7 +65,7 @@
             white-space: nowrap;
         }
 
-        /* Обертка для центрирования кнопки Vastaukset */
+        /* Обертка для центрирования */
         .answers-wrapper {
             display: flex;
             justify-content: center;
@@ -72,11 +73,9 @@
             max-width: 340px;
         }
 
-        /* Кнопка "Ответы" — делаем ширину как у одной колонки в сетке */
+        /* Кнопка "Ответы" — размер как у обычной кнопки */
         .btn-answers {
-            width: calc(33.333% - 7px); /* Треть ширины сетки минус отступ */
-            padding: 14px 5px; /* Как у обычных кнопок */
-            text-transform: uppercase;
+            width: calc(33.333% - 7px);
         }
 
         .btn-chapter:active, .btn-answers:active {
@@ -107,7 +106,7 @@
         <button class="btn-chapter" onclick="openChapter(9)">Kappale 9</button>
     </div>
 
-    <!-- Новая кнопка Vastaukset по центру -->
+    <!-- Кнопка Vastaukset по центру -->
     <div class="answers-wrapper">
         <button class="btn-answers" onclick="openAnswers()">Vastaukset</button>
     </div>
