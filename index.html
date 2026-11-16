@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Добавил maximum-scale=1.0, user-scalable=no чтобы запретить зум на уровне страницы -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -38,7 +39,8 @@
             padding: 12px 40px; 
             border: none;
             border-radius: 50px;
-            font-size: 15px;
+            /* Увеличил шрифт до 16px, чтобы Safari не делал зум */
+            font-size: 16px; 
             font-family: inherit;
             color: #333;
             outline: none;
@@ -53,7 +55,8 @@
 
         .search-input::placeholder {
             color: #999;
-            font-size: 14px;
+            /* Плейсхолдер тоже сделал 16px для единообразия */
+            font-size: 16px; 
             text-align: center; 
         }
 
@@ -155,10 +158,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Скрываем клавиатуру при клике в любое место, кроме самого поля ввода
         document.addEventListener('click', function(event) {
             const searchInput = document.getElementById('searchInput');
-            // Если кликнули не по полю ввода — убираем фокус
             if (event.target !== searchInput && !searchInput.contains(event.target)) {
                 searchInput.blur();
             }
