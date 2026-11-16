@@ -28,35 +28,42 @@
         .search-container {
             position: relative;
             width: 100%;
-            max-width: 340px;
-            margin-bottom: 10px; /* Такой же отступ, как между кнопками в сетке */
+            max-width: 260px; /* Сделал покороче (было 340px) */
+            margin-bottom: 25px; /* Увеличил отступ, чтобы поднять выше */
+            margin-top: -20px; /* Чуть поднял вверх от центра */
         }
 
         .search-input {
             width: 100%;
-            padding: 14px 14px 14px 45px; /* Слева отступ больше для иконки */
+            padding: 12px 12px 12px 40px; /* Сделал чуть тоньше по высоте (12px вместо 14px) */
             border: none;
-            border-radius: 50px; /* Форма капсулы, как у кнопок */
+            border-radius: 50px;
             font-size: 15px;
             font-family: inherit;
             color: #333;
             outline: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Чуть мягче тень */
+            transition: box-shadow 0.3s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 4px 15px rgba(39, 93, 157, 0.3); /* Подсветка при вводе */
         }
 
         .search-input::placeholder {
             color: #999;
+            font-size: 14px;
         }
 
         /* Иконка лупы */
         .search-icon {
             position: absolute;
-            left: 16px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 18px;
-            color: #999;
-            pointer-events: none; /* Чтобы клик проходил сквозь иконку в поле ввода */
+            font-size: 16px;
+            color: #888;
+            pointer-events: none;
         }
 
         /* --- Заголовок --- */
@@ -64,7 +71,7 @@
             font-size: 28px;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 35px; /* Чуть больше отступ от поиска до заголовка */
+            margin-bottom: 30px; 
             letter-spacing: 0.5px;
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -120,10 +127,10 @@
 </head>
 <body>
 
-    <!-- Поле поиска -->
+    <!-- Поле поиска (теперь компактнее и выше) -->
     <div class="search-container">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Поиск...">
+        <input type="text" class="search-input" placeholder="Поиск по словам...">
     </div>
 
     <!-- Заголовок -->
