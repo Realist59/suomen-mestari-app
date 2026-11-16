@@ -35,7 +35,6 @@
 
         .search-input {
             width: 100%;
-            /* Убрал большой левый отступ, сделал одинаковые отступы, чтобы текст встал по центру */
             padding: 12px 40px; 
             border: none;
             border-radius: 50px;
@@ -45,7 +44,7 @@
             outline: none;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
             transition: box-shadow 0.3s ease;
-            text-align: center; /* Выравнивание текста по центру */
+            text-align: center; 
         }
 
         .search-input:focus {
@@ -55,10 +54,9 @@
         .search-input::placeholder {
             color: #999;
             font-size: 14px;
-            text-align: center; /* Плейсхолдер тоже по центру */
+            text-align: center; 
         }
 
-        /* Иконка лупы */
         .search-icon {
             position: absolute;
             left: 14px;
@@ -79,12 +77,8 @@
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .color-blue {
-            color: #275d9d;
-        }
-        .color-white {
-            color: #ffffff;
-        }
+        .color-blue { color: #275d9d; }
+        .color-white { color: #ffffff; }
 
         /* --- Кнопки --- */
         .buttons-grid {
@@ -118,9 +112,7 @@
             max-width: 340px;
         }
 
-        .btn-answers {
-            width: calc(33.333% - 7px);
-        }
+        .btn-answers { width: calc(33.333% - 7px); }
 
         .btn-chapter:active, .btn-answers:active {
             transform: scale(0.96);
@@ -130,20 +122,17 @@
 </head>
 <body>
 
-    <!-- Поле поиска -->
     <div class="search-container">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-input" placeholder="Введите ваш запрос">
+        <input type="text" id="searchInput" class="search-input" placeholder="Введите ваш запрос">
     </div>
 
-    <!-- Заголовок -->
     <div class="menu-title">
         <span class="color-blue">Suomen</span> 
         <span class="color-white">Mestari</span> 
         <span class="color-blue">1</span>
     </div>
     
-    <!-- Сетка кнопок -->
     <div class="buttons-grid">
         <button class="btn-chapter" onclick="openChapter(1)">Kappale 1</button>
         <button class="btn-chapter" onclick="openChapter(2)">Kappale 2</button>
@@ -165,6 +154,15 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+
+        // Скрываем клавиатуру при клике в любое место, кроме самого поля ввода
+        document.addEventListener('click', function(event) {
+            const searchInput = document.getElementById('searchInput');
+            // Если кликнули не по полю ввода — убираем фокус
+            if (event.target !== searchInput && !searchInput.contains(event.target)) {
+                searchInput.blur();
+            }
+        });
 
         function openChapter(num) {
             alert("Открываем Kappale " + num);
