@@ -25,19 +25,26 @@
         }
 
         .menu-title {
-            color: #ffffff;
-            font-size: 26px;
+            font-size: 28px; /* Чуть увеличил размер для красоты */
             font-weight: 700;
             text-align: center;
-            margin-bottom: 30px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            margin-bottom: 35px;
             letter-spacing: 0.5px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень для читаемости */
+        }
+
+        /* Цвета для слов */
+        .color-blue {
+            color: #275d9d;
+        }
+        .color-white {
+            color: #ffffff;
         }
 
         /* Сетка для кнопок */
         .buttons-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             width: 100%;
             max-width: 340px;
@@ -47,15 +54,15 @@
             background-color: #2ecc71;
             color: white;
             border: none;
-            padding: 14px 5px; /* Уменьшил горизонтальные отступы, чтобы текст влезал */
-            font-size: 15px; /* Чуть уменьшил шрифт для компактности */
+            padding: 14px 5px;
+            font-size: 15px;
             font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             transition: transform 0.2s, background-color 0.2s;
             text-align: center;
-            white-space: nowrap; /* Запрещаем перенос текста */
+            white-space: nowrap;
         }
 
         .btn-chapter:active {
@@ -66,7 +73,12 @@
 </head>
 <body>
 
-    <div class="menu-title">Suomen Mestari 1</div>
+    <!-- Разноцветный заголовок -->
+    <div class="menu-title">
+        <span class="color-blue">Suomen</span> 
+        <span class="color-white">Mestari</span> 
+        <span class="color-blue">1</span>
+    </div>
     
     <div class="buttons-grid">
         <button class="btn-chapter" onclick="openChapter(1)">Kappale 1</button>
