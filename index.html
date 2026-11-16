@@ -25,15 +25,14 @@
         }
 
         .menu-title {
-            font-size: 28px; /* Чуть увеличил размер для красоты */
+            font-size: 28px;
             font-weight: 700;
             text-align: center;
             margin-bottom: 35px;
             letter-spacing: 0.5px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень для читаемости */
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        /* Цвета для слов */
         .color-blue {
             color: #275d9d;
         }
@@ -41,7 +40,6 @@
             color: #ffffff;
         }
 
-        /* Сетка для кнопок */
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -51,8 +49,9 @@
         }
 
         .btn-chapter {
-            background-color: #2ecc71;
-            color: white;
+            /* Изменил фон кнопок на синий */
+            background-color: #275d9d; 
+            color: #ffffff; /* Белый текст */
             border: none;
             padding: 14px 5px;
             font-size: 15px;
@@ -67,13 +66,13 @@
 
         .btn-chapter:active {
             transform: scale(0.96);
-            background-color: #27ae60;
+            /* Цвет при нажатии (нажатие на синюю кнопку делает её чуть темнее) */
+            background-color: #1e4a7a; 
         }
     </style>
 </head>
 <body>
 
-    <!-- Разноцветный заголовок -->
     <div class="menu-title">
         <span class="color-blue">Suomen</span> 
         <span class="color-white">Mestari</span> 
