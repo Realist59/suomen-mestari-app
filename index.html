@@ -7,20 +7,41 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f4f4f9;
+            /* Фирменный градиент в стиле обложки Suomen mestari */
+            background: linear-gradient(135deg, #fce881 0%, #f49b36 50%, #e25822 100%);
+            color: #2c3e50;
         }
-        h1 { color: #0056b3; }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            max-width: 85%;
+        }
+        h1 { 
+            color: #d35400; 
+            margin-top: 0;
+            font-size: 24px;
+        }
+        p {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #34495e;
+        }
     </style>
 </head>
 <body>
-    <h1>Suomen mestari 1</h1>
-    <p>Tervetuloa! Приложение успешно подключено.</p>
+    <div class="card">
+        <h1>Suomen mestari 1</h1>
+        <p>Tervetuloa! Приложение успешно подключено.</p>
+    </div>
 </body>
 </html>
