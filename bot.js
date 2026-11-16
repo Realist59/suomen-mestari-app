@@ -1,6 +1,6 @@
 const { Telegraf } = require('telegraf');
 
-// Токен берется из секретов GitHub
+// Токен берется из секретов GitHub (мы добавили его в настройках)
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN);
 
 // Слушаем команду /start
