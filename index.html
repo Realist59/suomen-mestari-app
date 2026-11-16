@@ -18,19 +18,21 @@
             overflow: hidden;
         }
 
-        /* Один элемент: размытый фон + чёткая обложка поверх через ::before */
+        /* Обложка целиком (contain) */
         .cover {
             position: fixed;
             inset: 0;
             background: url('front-page.jpg') center / contain no-repeat;
             z-index: 1;
         }
+
+        /* Размытая копия на весь экран — заполняет остатки */
         .cover::before {
             content: "";
             position: absolute;
-            inset: -20px;               /* прячем светлые края блюра */
+            inset: -30px;               /* запас, чтобы блюр не давал светлую кромку */
             background: url('front-page.jpg') center / cover no-repeat;
-            filter: blur(25px);
+            filter: blur(30px);
             z-index: -1;
         }
 
