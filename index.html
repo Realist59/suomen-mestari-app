@@ -2,176 +2,58 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Добавил maximum-scale=1.0, user-scalable=no чтобы запретить зум на уровне страницы -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Suomen Mestari 1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            height: 100vh;
-            background-color: #72c3e0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            overflow-y: auto;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* --- Поле поиска --- */
-        .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 260px; 
-            margin-bottom: 25px; 
-            margin-top: -20px; 
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 40px; 
-            border: none;
-            border-radius: 50px;
-            /* Увеличил шрифт до 16px, чтобы Safari не делал зум */
-            font-size: 16px; 
-            font-family: inherit;
-            color: #333;
-            outline: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
-            transition: box-shadow 0.3s ease;
-            text-align: center; 
-        }
-
-        .search-input:focus {
-            box-shadow: 0 4px 15px rgba(39, 93, 157, 0.3); 
-        }
-
-        .search-input::placeholder {
-            color: #999;
-            /* Плейсхолдер тоже сделал 16px для единообразия */
-            font-size: 16px; 
-            text-align: center; 
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-            color: #888;
-            pointer-events: none;
-        }
-
-        /* --- Заголовок --- */
-        .menu-title {
-            font-size: 28px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 30px; 
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .color-blue { color: #275d9d; }
-        .color-white { color: #ffffff; }
-
-        /* --- Кнопки --- */
-        .buttons-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            width: 100%;
-            max-width: 340px;
-            margin-bottom: 10px;
-        }
-
-        .btn-chapter, .btn-answers {
-            background-color: #275d9d; 
-            color: #ffffff;
-            border: none;
-            padding: 14px 5px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            transition: transform 0.2s, background-color 0.2s;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .answers-wrapper {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            max-width: 340px;
-        }
-
-        .btn-answers { width: calc(33.333% - 7px); }
-
-        .btn-chapter:active, .btn-answers:active {
-            transform: scale(0.96);
-            background-color: #1e4a7a; 
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="search-container">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" class="search-input" placeholder="Введите ваш запрос">
-    </div>
+    <!-- ЭКРАН 1: Главное меню -->
+    <div id="main-menu" class="screen active">
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Введите ваш запрос">
+        </div>
 
-    <div class="menu-title">
-        <span class="color-blue">Suomen</span> 
-        <span class="color-white">Mestari</span> 
-        <span class="color-blue">1</span>
-    </div>
-    
-    <div class="buttons-grid">
-        <button class="btn-chapter" onclick="openChapter(1)">Kappale 1</button>
-        <button class="btn-chapter" onclick="openChapter(2)">Kappale 2</button>
-        <button class="btn-chapter" onclick="openChapter(3)">Kappale 3</button>
+        <div class="menu-title">
+            <span class="color-blue">Suomen</span> 
+            <span class="color-white">Mestari</span> 
+            <span class="color-blue">1</span>
+        </div>
         
-        <button class="btn-chapter" onclick="openChapter(4)">Kappale 4</button>
-        <button class="btn-chapter" onclick="openChapter(5)">Kappale 5</button>
-        <button class="btn-chapter" onclick="openChapter(6)">Kappale 6</button>
+        <div class="buttons-grid" id="chaptersGrid">
+            <!-- Кнопки уроков генерируются через JS -->
+        </div>
+
+        <div class="answers-wrapper">
+            <button class="btn-answers" onclick="openAnswers()">Vastaukset</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 2: Просмотр урока -->
+    <div id="lesson-view" class="screen">
+        <div class="lesson-header">
+            <button class="btn-back" onclick="goBackToMenu()">← Назад</button>
+            <h2 id="lessonTitle">Kappale 1</h2>
+            <div style="width: 60px;"></div>
+        </div>
         
-        <button class="btn-chapter" onclick="openChapter(7)">Kappale 7</button>
-        <button class="btn-chapter" onclick="openChapter(8)">Kappale 8</button>
-        <button class="btn-chapter" onclick="openChapter(9)">Kappale 9</button>
+        <div class="lesson-content" id="lessonContent">
+            <!-- Сюда JS вставляет текст -->
+        </div>
+        
+        <div class="lesson-controls">
+            <button id="btnPrev" class="btn-nav" onclick="prevPage()">←</button>
+            <span id="pageIndicator">1 / 1</span>
+            <button id="btnNext" class="btn-nav" onclick="nextPage()">→</button>
+        </div>
     </div>
 
-    <div class="answers-wrapper">
-        <button class="btn-answers" onclick="openAnswers()">Vastaukset</button>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        document.addEventListener('click', function(event) {
-            const searchInput = document.getElementById('searchInput');
-            if (event.target !== searchInput && !searchInput.contains(event.target)) {
-                searchInput.blur();
-            }
-        });
-
-        function openChapter(num) {
-            alert("Открываем Kappale " + num);
-        }
-
-        function openAnswers() {
-            alert("Открываем ответы (Vastaukset)");
-        }
-    </script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
