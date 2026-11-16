@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Suomen Mestari 1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -16,25 +16,38 @@
             height: 100%;
             overflow: hidden;
             background-color: #5ab1df;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
-        .background {
-            position: absolute;
+        /* Размытый фон — заполняет весь экран */
+        .bg-blur {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-image: url('front-page.jpg');
-            /* Заполняет весь экран, лишнее обрезается по краям */
             background-size: cover;
+            background-position: center;
+            filter: blur(25px);
+            transform: scale(1.15);
+            z-index: 0;
+        }
+        /* Обложка целиком, по центру */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('front-page.jpg');
+            background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
+            z-index: 1;
         }
         .container {
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
             z-index: 10;
             display: flex;
             flex-direction: column;
@@ -42,7 +55,7 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            padding-bottom: 40px;
+            padding-bottom: calc(40px + env(safe-area-inset-bottom));
         }
         .btn-continue {
             background-color: #2ecc71;
@@ -64,6 +77,7 @@
 </head>
 <body>
 
+    <div class="bg-blur"></div>
     <div class="background"></div>
 
     <div class="container">
@@ -77,9 +91,6 @@
         function onContinueClick() {
             alert("Поехали учить финский!");
         }
-    </script>
-</body>
-</html>
     </script>
 </body>
 </html>
