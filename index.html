@@ -6,60 +6,39 @@
     <title>Suomen Mestari 1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            height: 100vh;
+            background: #5ab1df;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: calc(40px + env(safe-area-inset-bottom));
             overflow: hidden;
-            background-color: #5ab1df;
         }
-        /* Размытый фон — заполняет весь экран */
-        .bg-blur {
+
+        /* Один элемент: размытый фон + чёткая обложка поверх через ::before */
+        .cover {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('front-page.jpg');
-            background-size: cover;
-            background-position: center;
-            filter: blur(25px);
-            transform: scale(1.15);
-            z-index: 0;
-        }
-        /* Обложка целиком, по центру */
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('front-page.jpg');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            inset: 0;
+            background: url('front-page.jpg') center / contain no-repeat;
             z-index: 1;
         }
-        .container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding-bottom: calc(40px + env(safe-area-inset-bottom));
+        .cover::before {
+            content: "";
+            position: absolute;
+            inset: -20px;               /* прячем светлые края блюра */
+            background: url('front-page.jpg') center / cover no-repeat;
+            filter: blur(25px);
+            z-index: -1;
         }
+
         .btn-continue {
-            background-color: #2ecc71;
-            color: white;
+            position: relative;
+            z-index: 10;
+            background: #2ecc71;
+            color: #fff;
             border: none;
             padding: 14px 44px;
             font-size: 18px;
@@ -77,12 +56,8 @@
 </head>
 <body>
 
-    <div class="bg-blur"></div>
-    <div class="background"></div>
-
-    <div class="container">
-        <button class="btn-continue" onclick="onContinueClick()">Продолжить</button>
-    </div>
+    <div class="cover"></div>
+    <button class="btn-continue" onclick="onContinueClick()">Продолжить</button>
 
     <script>
         const tg = window.Telegram.WebApp;
