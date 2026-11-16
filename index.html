@@ -15,8 +15,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            /* Цвет фона вокруг картинки, если пропорции экрана отличаются */
-            background-color: #5ab1df; 
+            background-color: #5ab1df;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -29,8 +28,8 @@
             width: 100%;
             height: 100%;
             background-image: url('front-page.jpg');
-            /* Картинка теперь целиком помещается на экране без обрезки */
-            background-size: contain;
+            /* Заполняет весь экран, лишнее обрезается по краям */
+            background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -78,6 +77,9 @@
         function onContinueClick() {
             alert("Поехали учить финский!");
         }
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
