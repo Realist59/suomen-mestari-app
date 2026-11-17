@@ -9,10 +9,7 @@
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        /* Вернул голубой цвет фона */
         body { height: 100vh; background-color: #72c3e0; font-family: sans-serif; overflow: hidden; }
-        
         .screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; padding: 20px; width: 100%; }
         .screen.active { display: flex; }
         
@@ -31,28 +28,17 @@
         /* --- Экран PDF --- */
         #lesson-view { 
             justify-content: flex-start; 
-            background-color: #333; /* Серый фон только для чтения, чтобы страница выделялась */
+            background-color: #333; 
             padding: 0; 
             position: relative; 
             overflow: hidden;
         }
         
         .nav-btn {
-            position: absolute;
-            z-index: 100;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.3);
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
+            position: absolute; z-index: 100; width: 40px; height: 40px; border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.3); color: white; border: none; font-size: 24px;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
@@ -63,24 +49,16 @@
         .btn-prev.disabled { opacity: 0; pointer-events: none; }
 
         .pdf-scroll-container {
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 0;
+            width: 100%; height: 100%; overflow-y: auto; display: flex;
+            justify-content: center; align-items: flex-start; padding: 0;
         }
 
-        canvas {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
+        canvas { width: 100%; height: auto; display: block; }
     </style>
 </head>
 <body>
 
+    <!-- ЭКРАН 1: Главное меню -->
     <div id="main-menu" class="screen active">
         <div class="search-container">
             <span class="search-icon">🔍</span>
@@ -95,6 +73,7 @@
         </div>
     </div>
 
+    <!-- ЭКРАН 2: Просмотр PDF -->
     <div id="lesson-view" class="screen">
         <button class="nav-btn btn-home" onclick="goBack()">🏠</button>
         <button class="nav-btn btn-prev disabled" id="btnPrev" onclick="changePage(-1)">‹</button>
@@ -110,8 +89,7 @@
         tg.expand();
         if (tg.disableVerticalSwipes) { tg.disableVerticalSwipes(); }
 
-        const pdfFile = "kappale1.pdf"; 
-        
+        // Настройка PDF.js
         const pdfjsLib = window['pdfjs-dist/build/pdf'];
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
@@ -119,33 +97,42 @@
         let currentPageNum = 1;
         let totalPages = 0;
 
+        // Генерация кнопок 1-9
         const grid = document.getElementById('chaptersGrid');
         for (let i = 1; i <= 9; i++) {
             const btn = document.createElement('button');
             btn.className = 'btn-chapter';
             btn.innerText = `Kappale ${i}`;
-            btn.onclick = () => {
-                if (i !== 1) { alert("Пока только глава 1"); return; }
-                
-                document.getElementById('main-menu').classList.remove('active');
-                document.getElementById('lesson-view').classList.add('active');
-                
-                loadPdf();
-            };
+            btn.onclick = () => openChapter(i);
             grid.appendChild(btn);
         }
 
-        async function loadPdf() {
+        // Функция открытия главы
+        function openChapter(num) {
+            // Указываем имя файла в зависимости от главы
+            const pdfFile = `kappale${num}.pdf`;
+            
+            document.getElementById('main-menu').classList.remove('active');
+            document.getElementById('lesson-view').classList.add('active');
+            
+            loadPdf(pdfFile);
+        }
+
+        async function loadPdf(pdfFile) {
+            // Сбрасываем старые данные
+            pdfDoc = null;
+            currentPageNum = 1;
+            
             try {
                 const loadingTask = pdfjsLib.getDocument(pdfFile);
                 pdfDoc = await loadingTask.promise;
                 totalPages = pdfDoc.numPages;
-                currentPageNum = 1;
                 
                 renderPage(currentPageNum);
             } catch (error) {
                 console.error("Ошибка загрузки PDF:", error);
-                alert("Не удалось загрузить PDF.");
+                alert(`Не удалось загрузить файл ${pdfFile}. Убедитесь, что он есть на GitHub.`);
+                goBack(); // Возвращаем в меню при ошибке
             }
         }
 
@@ -163,6 +150,7 @@
             const canvas = document.getElementById('pdfCanvas');
             const context = canvas.getContext('2d');
             
+            // Рендерим в высоком качестве для Retina
             const outputScale = window.devicePixelRatio || 1;
             canvas.width = Math.floor(scaledViewport.width * outputScale);
             canvas.height = Math.floor(scaledViewport.height * outputScale);
@@ -180,6 +168,7 @@
             
             await page.render(renderContext).promise;
 
+            // Обновляем кнопки
             const btnPrev = document.getElementById('btnPrev');
             if (num === 1) {
                 btnPrev.classList.add('disabled');
@@ -203,6 +192,7 @@
             document.getElementById('lesson-view').classList.remove('active');
             document.getElementById('main-menu').classList.add('active');
             
+            // Очищаем холст
             const canvas = document.getElementById('pdfCanvas');
             const context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
