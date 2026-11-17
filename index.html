@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Suomen Mestari 1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Подключаем библиотеку PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { height: 100vh; background-color: #72c3e0; font-family: sans-serif; overflow: hidden; }
         .screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; padding: 20px; width: 100%; }
         .screen.active { display: flex; }
         
-        /* Меню */
+        /* --- Меню --- */
         .search-container { position: relative; width: 100%; max-width: 260px; margin-bottom: 25px; margin-top: -20px; }
         .search-input { width: 100%; padding: 12px 40px; border: none; border-radius: 50px; font-size: 16px; outline: none; text-align: center; }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #888; }
@@ -23,24 +26,47 @@
         .answers-wrapper { display: flex; justify-content: center; width: 100%; max-width: 340px; }
         .btn-answers { width: calc(33.333% - 7px); }
 
-        /* Экран PDF */
-        #lesson-view { justify-content: flex-start; background-color: #fff; padding: 0; position: relative; overflow: hidden; }
+        /* --- Экран PDF --- */
+        #lesson-view { 
+            justify-content: flex-start; 
+            background-color: #333; /* Темный фон, чтобы белая страница выделялась */
+            padding: 0; 
+            position: relative; 
+            overflow: hidden;
+        }
         
         .btn-home {
             position: absolute; top: 20px; left: 20px; z-index: 100;
             width: 45px; height: 45px; border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.4); color: white; border: none;
+            background-color: rgba(0, 0, 0, 0.6); color: white; border: none;
             font-size: 22px; cursor: pointer;
             display: flex; justify-content: center; align-items: center;
             backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
         }
 
-        .pdf-container { width: 100%; height: 100%; }
-        .pdf-container iframe { width: 100%; height: 100%; border: none; }
+        /* Контейнер для PDF (он будет скроллиться вниз) */
+        .pdf-scroll-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; /* Позволяем скроллить вниз, если страница длинная */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 60px 10px 10px 10px; /* Отступ сверху для кнопки домика */
+        }
+
+        /* Холст, на котором рисуется PDF */
+        canvas {
+            width: 100%; /* Растягиваем на всю ширину экрана */
+            height: auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: white;
+        }
     </style>
 </head>
 <body>
 
+    <!-- ЭКРАН 1: Главное меню -->
     <div id="main-menu" class="screen active">
         <div class="search-container">
             <span class="search-icon">🔍</span>
@@ -55,9 +81,13 @@
         </div>
     </div>
 
+    <!-- ЭКРАН 2: Просмотр PDF -->
     <div id="lesson-view" class="screen">
         <button class="btn-home" onclick="goBack()">🏠</button>
-        <div class="pdf-container" id="pdfContainer"></div>
+        
+        <div class="pdf-scroll-container" id="pdfContainer">
+            <canvas id="pdfCanvas"></canvas>
+        </div>
     </div>
 
     <script>
@@ -65,7 +95,12 @@
         tg.expand();
         if (tg.disableVerticalSwipes) { tg.disableVerticalSwipes(); }
 
-        const pdfFile = "kappale1.pdf"; // Имя твоего PDF на GitHub
+        // Укажи имя своего PDF файла
+        const pdfFile = "kappale1.pdf"; 
+        
+        // Настройка PDF.js
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
         const grid = document.getElementById('chaptersGrid');
         for (let i = 1; i <= 9; i++) {
@@ -78,16 +113,54 @@
                 document.getElementById('main-menu').classList.remove('active');
                 document.getElementById('lesson-view').classList.add('active');
                 
-                // Добавляем #zoom=100, чтобы PDF открывался без автозума
-                document.getElementById('pdfContainer').innerHTML = `<iframe src="${pdfFile}#zoom=100&toolbar=0"></iframe>`;
+                // Запускаем загрузку и отрисовку PDF
+                renderPdf();
             };
             grid.appendChild(btn);
+        }
+
+        // Функция для отрисовки PDF на холсте
+        async function renderPdf() {
+            try {
+                // Загружаем документ
+                const loadingTask = pdfjsLib.getDocument(pdfFile);
+                const pdf = await loadingTask.promise;
+                
+                // Берем первую страницу
+                const page = await pdf.getPage(1);
+                
+                // Настраиваем масштаб, чтобы влезло по ширине экрана
+                const containerWidth = document.getElementById('pdfContainer').clientWidth - 20; // Вычитаем отступы
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = containerWidth / viewport.width;
+                const scaledViewport = page.getViewport({ scale: scale });
+
+                // Настраиваем холст
+                const canvas = document.getElementById('pdfCanvas');
+                const context = canvas.getContext('2d');
+                canvas.height = scaledViewport.height;
+                canvas.width = scaledViewport.width;
+
+                // Рисуем страницу
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: scaledViewport
+                };
+                await page.render(renderContext).promise;
+                
+            } catch (error) {
+                console.error("Ошибка при загрузке PDF:", error);
+                document.getElementById('pdfContainer').innerHTML = "<p style='color:white; text-align:center; padding:20px;'>Ошибка загрузки PDF. Проверьте, что файл называется kappale1.pdf</p>";
+            }
         }
 
         function goBack() {
             document.getElementById('lesson-view').classList.remove('active');
             document.getElementById('main-menu').classList.add('active');
-            document.getElementById('pdfContainer').innerHTML = '';
+            // Очищаем холст
+            const canvas = document.getElementById('pdfCanvas');
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
         }
     </script>
 </body>
