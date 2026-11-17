@@ -21,18 +21,10 @@
         .color-blue { color: #275d9d; }
         .color-white { color: #ffffff; }
         .buttons-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 340px; margin-bottom: 10px; }
-        .btn-chapter, .btn-answers { background-color: #275d9d; color: #ffffff; border: none; padding: 14px 5px; font-size: 15px; font-weight: 600; border-radius: 50px; cursor: pointer; text-align: center; }
-        .answers-wrapper { display: flex; justify-content: center; width: 100%; max-width: 340px; }
-        .btn-answers { width: calc(33.333% - 7px); }
+        .btn-chapter { background-color: #275d9d; color: #ffffff; border: none; padding: 14px 5px; font-size: 15px; font-weight: 600; border-radius: 50px; cursor: pointer; text-align: center; }
 
         /* --- Экран PDF --- */
-        #lesson-view { 
-            justify-content: flex-start; 
-            background-color: #333; 
-            padding: 0; 
-            position: relative; 
-            overflow: hidden;
-        }
+        #lesson-view { justify-content: flex-start; background-color: #333; padding: 0; position: relative; overflow: hidden; }
         
         .nav-btn {
             position: absolute; z-index: 100; width: 40px; height: 40px; border-radius: 50%;
@@ -41,19 +33,77 @@
             backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-
         .nav-btn:active { background-color: rgba(0, 0, 0, 0.6); }
         .btn-home { top: 15px; left: 15px; }
         .btn-prev { top: 50%; left: 5px; transform: translateY(-50%); }
         .btn-next { top: 50%; right: 5px; transform: translateY(-50%); }
         .btn-prev.disabled { opacity: 0; pointer-events: none; }
 
+        /* Контейнер для PDF */
         .pdf-scroll-container {
             width: 100%; height: 100%; overflow-y: auto; display: flex;
             justify-content: center; align-items: flex-start; padding: 0;
+            position: relative; /* Важно для позиционирования зон */
         }
 
         canvas { width: 100%; height: auto; display: block; }
+
+        /* Интерактивная зона */
+        .hotspot {
+            position: absolute;
+            background-color: rgba(255, 0, 0, 0.3); /* Красный полупрозрачный для настройки */
+            border: 1px dashed red;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: red;
+            overflow: hidden;
+        }
+
+        /* Контент внутри зоны (ответ) */
+        .hotspot .answer-content {
+            display: none; /* Скрыт по умолчанию */
+            background-color: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            height: 100%;
+            padding: 5px;
+            font-size: 14px;
+            color: #000;
+            text-align: center;
+            pointer-events: none; /* Чтобы клик проходил сквозь текст на саму зону */
+        }
+
+        /* В режиме редактора показываем красные зоны */
+        .editor-mode .hotspot {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+
+        /* В обычном режиме зоны невидимы, пока не нажаты */
+        body:not(.editor-mode) .hotspot {
+            background-color: transparent;
+            border: none;
+        }
+
+        /* Когда зона открыта, показываем ответ */
+        .hotspot.open {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .hotspot.open .answer-content {
+            display: block;
+        }
+
+        /* Кнопка редактора */
+        .btn-editor {
+            position: absolute; bottom: 20px; left: 20px; z-index: 100;
+            background-color: #f39c12; color: white; border: none;
+            padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -68,9 +118,6 @@
             <span class="color-blue">Suomen</span> <span class="color-white">Mestari</span> <span class="color-blue">1</span>
         </div>
         <div class="buttons-grid" id="chaptersGrid"></div>
-        <div class="answers-wrapper">
-            <button class="btn-answers" onclick="alert('В разработке')">Vastaukset</button>
-        </div>
     </div>
 
     <!-- ЭКРАН 2: Просмотр PDF -->
@@ -81,7 +128,12 @@
         
         <div class="pdf-scroll-container" id="pdfContainer">
             <canvas id="pdfCanvas"></canvas>
+            <!-- Сюда будут добавляться зоны -->
+            <div id="hotspotsContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
         </div>
+
+        <!-- Кнопка редактора (для настройки зон) -->
+        <button class="btn-editor" onclick="toggleEditor()">Редактор</button>
     </div>
 
     <script>
@@ -89,13 +141,22 @@
         tg.expand();
         if (tg.disableVerticalSwipes) { tg.disableVerticalSwipes(); }
 
-        // Настройка PDF.js
         const pdfjsLib = window['pdfjs-dist/build/pdf'];
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
         let pdfDoc = null;
         let currentPageNum = 1;
         let totalPages = 0;
+        let currentChapterNum = 1;
+        let isEditorMode = false;
+
+        // Наши тестовые зоны (для примера)
+        // Формат: страница: [ {x: 100, y: 200, w: 150, h: 30, text: "Ответ"} ]
+        const hotspotsData = {
+            1: [
+                { x: 50, y: 300, w: 250, h: 40, text: "Minä olen opiskelija." }
+            ]
+        };
 
         // Генерация кнопок 1-9
         const grid = document.getElementById('chaptersGrid');
@@ -107,38 +168,31 @@
             grid.appendChild(btn);
         }
 
-        // Функция открытия главы
         function openChapter(num) {
-            // Указываем имя файла в зависимости от главы
+            currentChapterNum = num;
             const pdfFile = `kappale${num}.pdf`;
-            
             document.getElementById('main-menu').classList.remove('active');
             document.getElementById('lesson-view').classList.add('active');
-            
             loadPdf(pdfFile);
         }
 
         async function loadPdf(pdfFile) {
-            // Сбрасываем старые данные
             pdfDoc = null;
             currentPageNum = 1;
-            
             try {
                 const loadingTask = pdfjsLib.getDocument(pdfFile);
                 pdfDoc = await loadingTask.promise;
                 totalPages = pdfDoc.numPages;
-                
                 renderPage(currentPageNum);
             } catch (error) {
                 console.error("Ошибка загрузки PDF:", error);
-                alert(`Не удалось загрузить файл ${pdfFile}. Убедитесь, что он есть на GitHub.`);
-                goBack(); // Возвращаем в меню при ошибке
+                alert(`Не удалось загрузить ${pdfFile}.`);
+                goBack();
             }
         }
 
         async function renderPage(num) {
             if (!pdfDoc) return;
-            
             const page = await pdfDoc.getPage(num);
             const container = document.getElementById('pdfContainer');
             const containerWidth = container.clientWidth; 
@@ -150,7 +204,6 @@
             const canvas = document.getElementById('pdfCanvas');
             const context = canvas.getContext('2d');
             
-            // Рендерим в высоком качестве для Retina
             const outputScale = window.devicePixelRatio || 1;
             canvas.width = Math.floor(scaledViewport.width * outputScale);
             canvas.height = Math.floor(scaledViewport.height * outputScale);
@@ -160,23 +213,58 @@
 
             const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
-            const renderContext = {
-                canvasContext: context,
-                transform: transform,
-                viewport: scaledViewport
-            };
-            
-            await page.render(renderContext).promise;
+            await page.render({ canvasContext: context, transform: transform, viewport: scaledViewport }).promise;
 
-            // Обновляем кнопки
+            // Отрисовываем зоны для этой страницы
+            renderHotspots(num, scaledViewport.width, scaledViewport.height);
+
             const btnPrev = document.getElementById('btnPrev');
-            if (num === 1) {
-                btnPrev.classList.add('disabled');
-            } else {
-                btnPrev.classList.remove('disabled');
-            }
-            
+            btnPrev.classList.toggle('disabled', num === 1);
             container.scrollTop = 0;
+        }
+
+        function renderHotspots(pageNum, width, height) {
+            const container = document.getElementById('hotspotsContainer');
+            container.innerHTML = ''; // Очищаем старые зоны
+            container.style.pointerEvents = 'none'; // Клики проходят сквозь контейнер
+
+            const spots = hotspotsData[pageNum] || [];
+            
+            spots.forEach(spot => {
+                const div = document.createElement('div');
+                div.className = 'hotspot';
+                div.style.left = spot.x + 'px';
+                div.style.top = spot.y + 'px';
+                div.style.width = spot.w + 'px';
+                div.style.height = spot.h + 'px';
+                div.style.pointerEvents = 'auto'; // Сама зона кликабельна
+                
+                // Внутрь кладем ответ
+                const content = document.createElement('div');
+                content.className = 'answer-content';
+                content.innerText = spot.text;
+                div.appendChild(content);
+
+                // Клик по зоне (в обычном режиме)
+                div.onclick = () => {
+                    if (!isEditorMode) {
+                        div.classList.toggle('open');
+                    }
+                };
+
+                // Если это режим редактора, показываем координаты при клике
+                if (isEditorMode) {
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        const rect = container.getBoundingClientRect();
+                        const clickX = Math.round(e.clientX - rect.left);
+                        const clickY = Math.round(e.clientY - rect.top);
+                        alert(`Координаты для копирования:\nСтраница: ${currentPageNum}\nX: ${clickX}\nY: ${clickY}`);
+                    };
+                }
+
+                container.appendChild(div);
+            });
         }
 
         function changePage(direction) {
@@ -188,14 +276,28 @@
             }
         }
 
+        function toggleEditor() {
+            isEditorMode = !isEditorMode;
+            document.body.classList.toggle('editor-mode', isEditorMode);
+            
+            const btn = document.querySelector('.btn-editor');
+            btn.innerText = isEditorMode ? "Выйти из редактора" : "Редактор";
+            btn.style.backgroundColor = isEditorMode ? "#e74c3c" : "#f39c12";
+            
+            // Перерисовываем текущую страницу, чтобы применить стили
+            if (pdfDoc) renderPage(currentPageNum);
+        }
+
         function goBack() {
             document.getElementById('lesson-view').classList.remove('active');
             document.getElementById('main-menu').classList.add('active');
+            isEditorMode = false;
+            document.body.classList.remove('editor-mode');
             
-            // Очищаем холст
             const canvas = document.getElementById('pdfCanvas');
             const context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('hotspotsContainer').innerHTML = '';
             pdfDoc = null;
         }
     </script>
