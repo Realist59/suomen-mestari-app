@@ -8,7 +8,160 @@
     <meta http-equiv="Expires" content="0">
     <title>Suomen Mestari 1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            height: 100vh;
+            background-color: #72c3e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- Экраны --- */
+        .screen {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- Экран 1: Меню --- */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 260px;
+            margin-bottom: 25px;
+            margin-top: -20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #888;
+            pointer-events: none;
+        }
+
+        .menu-title {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-blue { color: #275d9d; }
+        .color-white { color: #ffffff; }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 340px;
+            margin-bottom: 10px;
+        }
+
+        .btn-chapter, .btn-answers {
+            background-color: #275d9d;
+            color: #ffffff;
+            border: none;
+            padding: 14px 5px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s, background-color 0.2s;
+            text-align: center;
+        }
+
+        .btn-chapter:active, .btn-answers:active {
+            transform: scale(0.96);
+            background-color: #1e4a7a;
+        }
+
+        .answers-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 340px;
+        }
+
+        .btn-answers { width: calc(33.333% - 7px); }
+
+        /* --- Экран 2: Урок --- */
+        #lesson-view {
+            justify-content: flex-start;
+            background-color: #fff;
+            padding: 0;
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 15px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+            z-index: 10;
+        }
+
+        .lesson-header h2 {
+            font-size: 18px;
+            color: #275d9d;
+        }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: #275d9d;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .lesson-content {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lesson-content img {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-width: 800px;
+        }
+    </style>
 </head>
 <body>
 
@@ -25,9 +178,7 @@
             <span class="color-blue">1</span>
         </div>
         
-        <div class="buttons-grid" id="chaptersGrid">
-            <!-- Кнопки уроков генерируются через JS -->
-        </div>
+        <div class="buttons-grid" id="chaptersGrid"></div>
 
         <div class="answers-wrapper">
             <button class="btn-answers" onclick="openAnswers()">Vastaukset</button>
@@ -42,18 +193,82 @@
             <div style="width: 60px;"></div>
         </div>
         
-        <div class="lesson-content" id="lessonContent">
-            <!-- Сюда JS вставляет текст -->
-        </div>
-        
-        <div class="lesson-controls">
-            <button id="btnPrev" class="btn-nav" onclick="prevPage()">←</button>
-            <span id="pageIndicator">1 / 1</span>
-            <button id="btnNext" class="btn-nav" onclick="nextPage()">→</button>
-        </div>
+        <div class="lesson-content" id="lessonContent"></div>
     </div>
 
-    <script src="data.js"></script>
-    <script src="app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Данные уроков (пока пусто, заполним потом картинками)
+        const bookData = {
+            "1": {
+                "title": "Kappale 1",
+                "pages": [
+                    // Сюда ты будешь вставлять: `<img src="sivu11.webp">`
+                ]
+            }
+        };
+
+        let currentChapter = null;
+        let currentPage = 0;
+
+        // Генерация кнопок при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('chaptersGrid');
+            for (let i = 1; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'btn-chapter';
+                btn.innerText = `Kappale ${i}`;
+                btn.onclick = () => openChapter(i);
+                grid.appendChild(btn);
+            }
+
+            // Скрываем клавиатуру при клике вне поля поиска
+            document.addEventListener('click', function(event) {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput && event.target !== searchInput && !searchInput.contains(event.target)) {
+                    searchInput.blur();
+                }
+            });
+        });
+
+        function openChapter(num) {
+            if (!bookData[num]) {
+                alert("Этот урок пока не добавлен.");
+                return;
+            }
+            
+            currentChapter = num;
+            currentPage = 0;
+            
+            document.getElementById('lessonTitle').innerText = bookData[num].title;
+            document.getElementById('main-menu').classList.remove('active');
+            document.getElementById('lesson-view').classList.add('active');
+            
+            renderPage();
+        }
+
+        function goBackToMenu() {
+            document.getElementById('lesson-view').classList.remove('active');
+            document.getElementById('main-menu').classList.add('active');
+        }
+
+        function renderPage() {
+            const contentDiv = document.getElementById('lessonContent');
+            const pages = bookData[currentChapter].pages;
+            
+            if (pages.length === 0) {
+                contentDiv.innerHTML = "<p style='padding:20px; color:#888; font-family:sans-serif;'>Страницы пока не добавлены.</p>";
+                return;
+            }
+            
+            contentDiv.innerHTML = pages[currentPage];
+        }
+
+        function openAnswers() {
+            alert("Раздел с ответами (Vastaukset) в разработке.");
+        }
+    </script>
 </body>
 </html>
