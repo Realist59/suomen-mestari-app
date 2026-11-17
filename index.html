@@ -39,33 +39,26 @@
         .btn-next { top: 50%; right: 5px; transform: translateY(-50%); }
         .btn-prev.disabled { opacity: 0; pointer-events: none; }
 
-        /* Контейнер для PDF */
         .pdf-scroll-container {
             width: 100%; height: 100%; overflow-y: auto; display: flex;
             justify-content: center; align-items: flex-start; padding: 0;
-            position: relative; /* Важно для позиционирования зон */
+            position: relative;
         }
 
         canvas { width: 100%; height: auto; display: block; }
 
-        /* Интерактивная зона */
+        /* --- Стили для зон --- */
         .hotspot {
             position: absolute;
-            background-color: rgba(255, 0, 0, 0.3); /* Красный полупрозрачный для настройки */
-            border: 1px dashed red;
+            background-color: transparent;
+            border: none;
             cursor: pointer;
             z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: red;
             overflow: hidden;
         }
 
-        /* Контент внутри зоны (ответ) */
         .hotspot .answer-content {
-            display: none; /* Скрыт по умолчанию */
+            display: none;
             background-color: rgba(255, 255, 255, 0.95);
             width: 100%;
             height: 100%;
@@ -73,36 +66,53 @@
             font-size: 14px;
             color: #000;
             text-align: center;
-            pointer-events: none; /* Чтобы клик проходил сквозь текст на саму зону */
+            pointer-events: none;
         }
 
-        /* В режиме редактора показываем красные зоны */
-        .editor-mode .hotspot {
-            background-color: rgba(255, 0, 0, 0.5);
-        }
-
-        /* В обычном режиме зоны невидимы, пока не нажаты */
-        body:not(.editor-mode) .hotspot {
-            background-color: transparent;
-            border: none;
-        }
-
-        /* Когда зона открыта, показываем ответ */
         .hotspot.open {
             background-color: rgba(255, 255, 255, 0.95);
             border: 1px solid #ccc;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        .hotspot.open .answer-content {
-            display: block;
+        .hotspot.open .answer-content { display: block; }
+
+        /* --- Стили для редактора --- */
+        .editor-mode .hotspot {
+            background-color: rgba(255, 0, 0, 0.3);
+            border: 2px dashed red;
         }
 
-        /* Кнопка редактора */
-        .btn-editor {
-            position: absolute; bottom: 20px; left: 20px; z-index: 100;
-            background-color: #f39c12; color: white; border: none;
-            padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+        .editor-mode .hotspot .resize-handle {
+            display: block;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 15px;
+            height: 15px;
+            background-color: red;
+            cursor: se-resize;
+        }
+
+        .hotspot .resize-handle { display: none; }
+
+        /* Панель управления редактора */
+        .editor-panel {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.8); padding: 10px; border-radius: 10px;
+            display: none; z-index: 200; flex-direction: column; gap: 10px; width: 90%;
+        }
+        .editor-mode .editor-panel { display: flex; }
+        
+        .editor-panel button {
+            padding: 10px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer;
+        }
+        .btn-add-zone { background-color: #2ecc71; color: white; }
+        .btn-save { background-color: #3498db; color: white; }
+        .btn-clear { background-color: #e74c3c; color: white; }
+        
+        .editor-panel textarea {
+            width: 100%; height: 60px; padding: 5px; border-radius: 5px; border: none;
+            font-family: monospace; font-size: 12px;
         }
     </style>
 </head>
@@ -128,12 +138,18 @@
         
         <div class="pdf-scroll-container" id="pdfContainer">
             <canvas id="pdfCanvas"></canvas>
-            <!-- Сюда будут добавляться зоны -->
             <div id="hotspotsContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
         </div>
 
-        <!-- Кнопка редактора (для настройки зон) -->
-        <button class="btn-editor" onclick="toggleEditor()">Редактор</button>
+        <!-- Кнопка редактора (внизу) -->
+        <button class="btn-editor" onclick="toggleEditor()">Настроить ответы</button>
+
+        <!-- Панель управления редактора -->
+        <div class="editor-panel" id="editorPanel">
+            <button class="btn-add-zone" onclick="addNewZone()">+ Добавить пустую зону</button>
+            <textarea id="codeOutput" readonly placeholder="Здесь появятся координаты зон..."></textarea>
+            <button class="btn-save" onclick="copyCode()">Скопировать код</button>
+        </div>
     </div>
 
     <script>
@@ -150,11 +166,10 @@
         let currentChapterNum = 1;
         let isEditorMode = false;
 
-        // Наши тестовые зоны (для примера)
-        // Формат: страница: [ {x: 100, y: 200, w: 150, h: 30, text: "Ответ"} ]
-        const hotspotsData = {
+        // Здесь будут храниться наши зоны
+        let hotspotsData = {
             1: [
-                { x: 50, y: 300, w: 250, h: 40, text: "Minä olen opiskelija." }
+                { x: 50, y: 300, w: 250, h: 40, text: "Тестовый ответ" }
             ]
         };
 
@@ -215,56 +230,101 @@
 
             await page.render({ canvasContext: context, transform: transform, viewport: scaledViewport }).promise;
 
-            // Отрисовываем зоны для этой страницы
-            renderHotspots(num, scaledViewport.width, scaledViewport.height);
-
+            renderHotspots(num);
             const btnPrev = document.getElementById('btnPrev');
             btnPrev.classList.toggle('disabled', num === 1);
             container.scrollTop = 0;
         }
 
-        function renderHotspots(pageNum, width, height) {
+        function renderHotspots(pageNum) {
             const container = document.getElementById('hotspotsContainer');
-            container.innerHTML = ''; // Очищаем старые зоны
-            container.style.pointerEvents = 'none'; // Клики проходят сквозь контейнер
+            container.innerHTML = '';
+            container.style.pointerEvents = 'none';
 
             const spots = hotspotsData[pageNum] || [];
             
-            spots.forEach(spot => {
+            spots.forEach((spot, index) => {
                 const div = document.createElement('div');
                 div.className = 'hotspot';
                 div.style.left = spot.x + 'px';
                 div.style.top = spot.y + 'px';
                 div.style.width = spot.w + 'px';
                 div.style.height = spot.h + 'px';
-                div.style.pointerEvents = 'auto'; // Сама зона кликабельна
+                div.style.pointerEvents = 'auto';
                 
-                // Внутрь кладем ответ
                 const content = document.createElement('div');
                 content.className = 'answer-content';
                 content.innerText = spot.text;
                 div.appendChild(content);
 
-                // Клик по зоне (в обычном режиме)
-                div.onclick = () => {
-                    if (!isEditorMode) {
-                        div.classList.toggle('open');
-                    }
-                };
-
-                // Если это режим редактора, показываем координаты при клике
-                if (isEditorMode) {
-                    div.onclick = (e) => {
-                        e.stopPropagation();
-                        const rect = container.getBoundingClientRect();
-                        const clickX = Math.round(e.clientX - rect.left);
-                        const clickY = Math.round(e.clientY - rect.top);
-                        alert(`Координаты для копирования:\nСтраница: ${currentPageNum}\nX: ${clickX}\nY: ${clickY}`);
-                    };
-                }
+                // Обработчик перетаскивания
+                makeDraggable(div, spot, index);
+                // Обработчик изменения размера
+                makeResizable(div, spot, index);
 
                 container.appendChild(div);
             });
+        }
+
+        // Логика перетаскивания и изменения размера (упрощенная)
+        function makeDraggable(el, spot, index) {
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
+
+            el.addEventListener('mousedown', (e) => {
+                if (!isEditorMode) return;
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = spot.x;
+                startTop = spot.y;
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                spot.x = Math.round(startLeft + dx);
+                spot.y = Math.round(startTop + dy);
+                el.style.left = spot.x + 'px';
+                el.style.top = spot.y + 'px';
+            });
+
+            document.addEventListener('mouseup', () => { isDragging = false; });
+        }
+
+        function makeResizable(el, spot, index) {
+            // Добавляем уголок для изменения размера (появляется только в редакторе)
+            const handle = document.createElement('div');
+            handle.className = 'resize-handle';
+            el.appendChild(handle);
+
+            let isResizing = false;
+            let startX, startY, startW, startH;
+
+            handle.addEventListener('mousedown', (e) => {
+                if (!isEditorMode) return;
+                isResizing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startW = spot.w;
+                startH = spot.h;
+                e.stopPropagation();
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizing) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                spot.w = Math.round(startW + dx);
+                spot.h = Math.round(startH + dy);
+                el.style.width = spot.w + 'px';
+                el.style.height = spot.h + 'px';
+            });
+
+            document.addEventListener('mouseup', () => { isResizing = false; });
         }
 
         function changePage(direction) {
@@ -281,11 +341,37 @@
             document.body.classList.toggle('editor-mode', isEditorMode);
             
             const btn = document.querySelector('.btn-editor');
-            btn.innerText = isEditorMode ? "Выйти из редактора" : "Редактор";
+            btn.innerText = isEditorMode ? "Выйти из редактора" : "Настроить ответы";
             btn.style.backgroundColor = isEditorMode ? "#e74c3c" : "#f39c12";
             
-            // Перерисовываем текущую страницу, чтобы применить стили
             if (pdfDoc) renderPage(currentPageNum);
+        }
+
+        // --- НОВЫЕ ФУНКЦИИ ДЛЯ РЕДАКТОРА ---
+        function addNewZone() {
+            if (!isEditorMode) return;
+            if (!hotspotsData[currentPageNum]) hotspotsData[currentPageNum] = [];
+            // Создаем зону в центре экрана
+            hotspotsData[currentPageNum].push({ x: 50, y: 100, w: 150, h: 50, text: "Новый ответ" });
+            renderPage(currentPageNum);
+        }
+
+        function copyCode() {
+            // Формируем код для вставки
+            let code = "let hotspotsData = {\n";
+            for (let page in hotspotsData) {
+                code += `  ${page}: [\n`;
+                hotspotsData[page].forEach(spot => {
+                    code += `    { x: ${spot.x}, y: ${spot.y}, w: ${spot.w}, h: ${spot.h}, text: "${spot.text}" },\n`;
+                });
+                code += `  ],\n`;
+            }
+            code += "};";
+
+            document.getElementById('codeOutput').value = code;
+            navigator.clipboard.writeText(code).then(() => {
+                alert("Код скопирован в буфер обмена! Вставь его в файл index.html вместо hotspotsData.");
+            });
         }
 
         function goBack() {
