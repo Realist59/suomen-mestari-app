@@ -11,7 +11,7 @@
         .screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; padding: 20px; width: 100%; }
         .screen.active { display: flex; }
         
-        /* Меню */
+        /* --- Меню --- */
         .search-container { position: relative; width: 100%; max-width: 260px; margin-bottom: 25px; margin-top: -20px; }
         .search-input { width: 100%; padding: 12px 40px; border: none; border-radius: 50px; font-size: 16px; outline: none; text-align: center; }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #888; }
@@ -23,16 +23,56 @@
         .answers-wrapper { display: flex; justify-content: center; width: 100%; max-width: 340px; }
         .btn-answers { width: calc(33.333% - 7px); }
 
-        /* Экран PDF */
-        #lesson-view { justify-content: flex-start; background-color: #fff; padding: 0; }
-        .lesson-header { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 15px 20px; background-color: #275d9d; color: white; z-index: 10; }
-        .btn-back { background: none; border: none; color: white; font-size: 16px; cursor: pointer; font-weight: 600; }
-        .pdf-container { width: 100%; height: 100%; flex-grow: 1; }
-        .pdf-container iframe { width: 100%; height: 100%; border: none; }
+        /* --- Экран PDF --- */
+        #lesson-view { 
+            justify-content: flex-start; 
+            background-color: #fff; 
+            padding: 0; 
+            position: relative; /* Чтобы кнопка домика позиционировалась относительно этого экрана */
+        }
+        
+        /* Кнопка "Домик" */
+        .btn-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.4); /* Полупрозрачный черный */
+            color: white;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px); /* Эффект размытия под кнопкой */
+            -webkit-backdrop-filter: blur(5px);
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn-home:active {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .pdf-container { 
+            width: 100%; 
+            height: 100%; 
+            flex-grow: 1; 
+        }
+        .pdf-container iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+        }
     </style>
 </head>
 <body>
 
+    <!-- ЭКРАН 1: Главное меню -->
     <div id="main-menu" class="screen active">
         <div class="search-container">
             <span class="search-icon">🔍</span>
@@ -47,20 +87,22 @@
         </div>
     </div>
 
+    <!-- ЭКРАН 2: Просмотр PDF -->
     <div id="lesson-view" class="screen">
-        <div class="lesson-header">
-            <button class="btn-back" onclick="goBack()">← Назад</button>
-            <h2>Kappale 1</h2>
-            <div style="width: 60px;"></div>
-        </div>
+        
+        <!-- Кнопка Домик -->
+        <button class="btn-home" onclick="goBack()">🏠</button>
+        
+        <!-- Контейнер для PDF -->
         <div class="pdf-container" id="pdfContainer"></div>
+        
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Генерация кнопок
+        // Генерация кнопок уроков
         const grid = document.getElementById('chaptersGrid');
         for (let i = 1; i <= 9; i++) {
             const btn = document.createElement('button');
@@ -68,17 +110,22 @@
             btn.innerText = `Kappale ${i}`;
             btn.onclick = () => {
                 if (i !== 1) { alert("Пока только глава 1"); return; }
+                
+                // Переключаем экран
                 document.getElementById('main-menu').classList.remove('active');
                 document.getElementById('lesson-view').classList.add('active');
-                // Вставляем твой PDF
+                
+                // Загружаем PDF
                 document.getElementById('pdfContainer').innerHTML = '<iframe src="kappale1.pdf"></iframe>';
             };
             grid.appendChild(btn);
         }
 
+        // Возврат в меню по кнопке "Домик"
         function goBack() {
             document.getElementById('lesson-view').classList.remove('active');
             document.getElementById('main-menu').classList.add('active');
+            // Очищаем PDF, чтобы он перестал грузиться в фоне
             document.getElementById('pdfContainer').innerHTML = '';
         }
     </script>
