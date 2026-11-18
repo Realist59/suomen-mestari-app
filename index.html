@@ -8,12 +8,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; } /* Отключаем скролл пальцем для редактора */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body { height: 100vh; background-color: #72c3e0; font-family: sans-serif; overflow: hidden; }
         .screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; padding: 20px; width: 100%; }
         .screen.active { display: flex; }
         
-        /* Меню */
+        /* --- МЕНЮ --- */
         .search-container { position: relative; width: 100%; max-width: 260px; margin-bottom: 25px; margin-top: -20px; }
         .search-input { width: 100%; padding: 12px 40px; border: none; border-radius: 50px; font-size: 16px; outline: none; text-align: center; }
         .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: #888; }
@@ -23,7 +23,7 @@
         .buttons-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 340px; margin-bottom: 10px; }
         .btn-chapter { background-color: #275d9d; color: #ffffff; border: none; padding: 14px 5px; font-size: 15px; font-weight: 600; border-radius: 50px; cursor: pointer; text-align: center; }
 
-        /* Экран PDF */
+        /* --- ЭКРАН PDF --- */
         #lesson-view { justify-content: flex-start; background-color: #333; padding: 0; position: relative; overflow: hidden; }
         
         .nav-btn { position: absolute; z-index: 100; width: 40px; height: 40px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.3); color: white; border: none; font-size: 24px; cursor: pointer; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
@@ -33,78 +33,13 @@
         .btn-next { top: 50%; right: 5px; transform: translateY(-50%); }
         .btn-prev.disabled { opacity: 0; pointer-events: none; }
 
-        .pdf-scroll-container { width: 100%; height: 100%; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; padding: 0; position: relative; }
+        .pdf-scroll-container { width: 100%; height: 100%; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
         canvas { width: 100%; height: auto; display: block; }
-
-        /* Зоны ответов */
-        .hotspot {
-            position: absolute;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
-            overflow: hidden;
-            touch-action: none; /* Отключаем скролл при перетаскивании */
-        }
-
-        .hotspot .answer-content {
-            display: none;
-            background-color: rgba(255, 255, 255, 0.95);
-            width: 100%;
-            height: 100%;
-            padding: 5px;
-            font-size: 14px;
-            color: #000;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        .hotspot.open {
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .hotspot.open .answer-content { display: block; }
-
-        /* Стили редактора */
-        .editor-mode .hotspot {
-            background-color: rgba(255, 0, 0, 0.3);
-            border: 2px dashed red;
-        }
-
-        .editor-mode .hotspot .resize-handle {
-            display: block;
-            position: absolute;
-            right: 0;
-            bottom: 0;
-            width: 20px;
-            height: 20px;
-            background-color: red;
-            cursor: se-resize;
-        }
-
-        .hotspot .resize-handle { display: none; }
-
-        /* Панель управления редактора */
-        .editor-panel {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background-color: rgba(0,0,0,0.8); padding: 10px; border-radius: 10px;
-            display: none; z-index: 200; flex-direction: column; gap: 10px; width: 90%;
-        }
-        .editor-mode .editor-panel { display: flex; }
-        
-        .editor-panel button { padding: 10px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; }
-        .btn-add-zone { background-color: #2ecc71; color: white; }
-        .btn-save { background-color: #3498db; color: white; }
-        
-        .editor-panel textarea {
-            width: 100%; height: 60px; padding: 5px; border-radius: 5px; border: none;
-            font-family: monospace; font-size: 12px;
-        }
     </style>
 </head>
 <body>
 
+    <!-- ЭКРАН 1: Главное меню -->
     <div id="main-menu" class="screen active">
         <div class="search-container">
             <span class="search-icon">🔍</span>
@@ -116,6 +51,7 @@
         <div class="buttons-grid" id="chaptersGrid"></div>
     </div>
 
+    <!-- ЭКРАН 2: Просмотр PDF -->
     <div id="lesson-view" class="screen">
         <button class="nav-btn btn-home" onclick="goBack()">🏠</button>
         <button class="nav-btn btn-prev disabled" id="btnPrev" onclick="changePage(-1)">‹</button>
@@ -123,15 +59,6 @@
         
         <div class="pdf-scroll-container" id="pdfContainer">
             <canvas id="pdfCanvas"></canvas>
-            <div id="hotspotsContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
-        </div>
-
-        <button class="btn-editor" onclick="toggleEditor()">Настроить ответы</button>
-
-        <div class="editor-panel" id="editorPanel">
-            <button class="btn-add-zone" onclick="addNewZone()">+ Добавить пустую зону</button>
-            <textarea id="codeOutput" readonly placeholder="Здесь появятся координаты зон..."></textarea>
-            <button class="btn-save" onclick="copyCode()">Скопировать код</button>
         </div>
     </div>
 
@@ -146,15 +73,6 @@
         let pdfDoc = null;
         let currentPageNum = 1;
         let totalPages = 0;
-        let currentChapterNum = 1;
-        let isEditorMode = false;
-
-        // Массив зон (пока с тестовой)
-        let hotspotsData = {
-            1: [
-                { x: 50, y: 300, w: 250, h: 40, text: "Тестовый ответ" }
-            ]
-        };
 
         const grid = document.getElementById('chaptersGrid');
         for (let i = 1; i <= 9; i++) {
@@ -166,7 +84,6 @@
         }
 
         function openChapter(num) {
-            currentChapterNum = num;
             const pdfFile = `kappale${num}.pdf`;
             document.getElementById('main-menu').classList.remove('active');
             document.getElementById('lesson-view').classList.add('active');
@@ -212,114 +129,9 @@
 
             await page.render({ canvasContext: context, transform: transform, viewport: scaledViewport }).promise;
 
-            renderHotspots(num);
             const btnPrev = document.getElementById('btnPrev');
             btnPrev.classList.toggle('disabled', num === 1);
             container.scrollTop = 0;
-        }
-
-        function renderHotspots(pageNum) {
-            const container = document.getElementById('hotspotsContainer');
-            container.innerHTML = '';
-            container.style.pointerEvents = 'none';
-
-            const spots = hotspotsData[pageNum] || [];
-            
-            spots.forEach((spot, index) => {
-                const div = document.createElement('div');
-                div.className = 'hotspot';
-                div.style.left = spot.x + 'px';
-                div.style.top = spot.y + 'px';
-                div.style.width = spot.w + 'px';
-                div.style.height = spot.h + 'px';
-                div.style.pointerEvents = 'auto';
-                
-                const content = document.createElement('div');
-                content.className = 'answer-content';
-                content.innerText = spot.text;
-                div.appendChild(content);
-
-                // Создаем "ручку" для изменения размера
-                const handle = document.createElement('div');
-                handle.className = 'resize-handle';
-                div.appendChild(handle);
-
-                // Навешиваем Pointer Events (работает и на телефоне, и на мышке)
-                setupDrag(div, spot, index, handle);
-                
-                // Обычный клик для показа ответа
-                div.addEventListener('click', (e) => {
-                    if (!isEditorMode) {
-                        // Если это не редактор, то просто открываем/закрываем ответ
-                        div.classList.toggle('open');
-                    }
-                });
-
-                container.appendChild(div);
-            });
-        }
-
-        function setupDrag(el, spot, index, handle) {
-            let isDragging = false;
-            let isResizing = false;
-            let startX, startY, startLeft, startTop, startW, startH;
-
-            // Начало перетаскивания (зажали зону)
-            el.addEventListener('pointerdown', (e) => {
-                if (!isEditorMode) return;
-                if (e.target === handle) return; // Если тянем за уголок — это ресайз, обрабатывается ниже
-                
-                isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = spot.x;
-                startTop = spot.y;
-                el.setPointerCapture(e.pointerId); // Захватываем указатель, чтобы не терялся
-            });
-
-            // Начало изменения размера (зажали уголок)
-            handle.addEventListener('pointerdown', (e) => {
-                if (!isEditorMode) return;
-                isResizing = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startW = spot.w;
-                startH = spot.h;
-                el.setPointerCapture(e.pointerId);
-                e.stopPropagation();
-            });
-
-            // Движение
-            el.addEventListener('pointermove', (e) => {
-                if (isDragging) {
-                    const dx = e.clientX - startX;
-                    const dy = e.clientY - startY;
-                    spot.x = startLeft + dx;
-                    spot.y = startTop + dy;
-                    el.style.left = spot.x + 'px';
-                    el.style.top = spot.y + 'px';
-                } else if (isResizing) {
-                    const dx = e.clientX - startX;
-                    const dy = e.clientY - startY;
-                    spot.w = Math.max(30, startW + dx); // Минимальная ширина 30
-                    spot.h = Math.max(20, startH + dy); // Минимальная высота 20
-                    el.style.width = spot.w + 'px';
-                    el.style.height = spot.h + 'px';
-                }
-            });
-
-            // Конец движения
-            el.addEventListener('pointerup', (e) => {
-                isDragging = false;
-                isResizing = false;
-                el.releasePointerCapture(e.pointerId);
-            });
-
-            el.addEventListener('pointercancel', (e) => {
-                isDragging = false;
-                isResizing = false;
-                el.releasePointerCapture(e.pointerId);
-            });
         }
 
         function changePage(direction) {
@@ -331,47 +143,13 @@
             }
         }
 
-        function toggleEditor() {
-            isEditorMode = !isEditorMode;
-            document.body.classList.toggle('editor-mode', isEditorMode);
-            const btn = document.querySelector('.btn-editor');
-            btn.innerText = isEditorMode ? "Выйти из редактора" : "Настроить ответы";
-            btn.style.backgroundColor = isEditorMode ? "#e74c3c" : "#f39c12";
-            if (pdfDoc) renderPage(currentPageNum);
-        }
-
-        function addNewZone() {
-            if (!isEditorMode) return;
-            if (!hotspotsData[currentPageNum]) hotspotsData[currentPageNum] = [];
-            hotspotsData[currentPageNum].push({ x: 50, y: 100, w: 150, h: 50, text: "Введите ответ сюда..." });
-            renderPage(currentPageNum);
-        }
-
-        function copyCode() {
-            let code = "let hotspotsData = {\n";
-            for (let page in hotspotsData) {
-                code += `  ${page}: [\n`;
-                hotspotsData[page].forEach(spot => {
-                    code += `    { x: ${spot.x}, y: ${spot.y}, w: ${spot.w}, h: ${spot.h}, text: "${spot.text}" },\n`;
-                });
-                code += `  ],\n`;
-            }
-            code += "};";
-            document.getElementById('codeOutput').value = code;
-            navigator.clipboard.writeText(code).then(() => {
-                alert("Код скопирован в буфер обмена!");
-            });
-        }
-
         function goBack() {
             document.getElementById('lesson-view').classList.remove('active');
             document.getElementById('main-menu').classList.add('active');
-            isEditorMode = false;
-            document.body.classList.remove('editor-mode');
+            
             const canvas = document.getElementById('pdfCanvas');
             const context = canvas.getContext('2d');
             context.clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('hotspotsContainer').innerHTML = '';
             pdfDoc = null;
         }
     </script>
