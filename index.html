@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Suomen Mestari 1</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,20 +20,23 @@
         .color-blue { color: #275d9d; }
         .color-white { color: #ffffff; }
         .buttons-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 340px; margin-bottom: 10px; }
-        .btn-chapter { background-color: #275d9d; color: #ffffff; border: none; padding: 14px 5px; font-size: 15px; font-weight: 600; border-radius: 50px; cursor: pointer; text-align: center; }
+        .btn-chapter { background-color: #275d9d; color: #ffffff; border: none; padding: 14px 5px; font-size: 15px; font-weight: 600; border-radius: 50px; cursor: pointer; text-align: center; transition: transform 0.2s; }
+        .btn-chapter:active { transform: scale(0.95); }
 
-        /* --- ЭКРАН PDF --- */
-        #lesson-view { justify-content: flex-start; background-color: #333; padding: 0; position: relative; overflow: hidden; }
+        /* --- ЭКРАН КНИГИ (ЧИТАЛКА) --- */
+        #reader-view { background-color: #333; padding: 0; position: relative; }
         
-        .nav-btn { position: absolute; z-index: 100; width: 40px; height: 40px; border-radius: 50%; background-color: rgba(0, 0, 0, 0.3); color: white; border: none; font-size: 24px; cursor: pointer; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-        .nav-btn:active { background-color: rgba(0, 0, 0, 0.6); }
-        .btn-home { top: 15px; left: 15px; }
-        .btn-prev { top: 50%; left: 5px; transform: translateY(-50%); }
-        .btn-next { top: 50%; right: 5px; transform: translateY(-50%); }
-        .btn-prev.disabled { opacity: 0; pointer-events: none; }
+        .btn-home {
+            position: absolute; top: 15px; left: 15px; z-index: 100;
+            width: 40px; height: 40px; border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5); color: white; border: none; font-size: 20px;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); cursor: pointer;
+        }
 
-        .pdf-scroll-container { width: 100%; height: 100%; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
-        canvas { width: 100%; height: auto; display: block; }
+        .reader-iframe {
+            width: 100%; height: 100%; border: none;
+        }
     </style>
 </head>
 <body>
@@ -51,15 +53,11 @@
         <div class="buttons-grid" id="chaptersGrid"></div>
     </div>
 
-    <!-- ЭКРАН 2: Просмотр PDF -->
-    <div id="lesson-view" class="screen">
-        <button class="nav-btn btn-home" onclick="goBack()">🏠</button>
-        <button class="nav-btn btn-prev disabled" id="btnPrev" onclick="changePage(-1)">‹</button>
-        <button class="nav-btn btn-next" id="btnNext" onclick="changePage(1)">›</button>
-        
-        <div class="pdf-scroll-container" id="pdfContainer">
-            <canvas id="pdfCanvas"></canvas>
-        </div>
+    <!-- ЭКРАН 2: Просмотр книги -->
+    <div id="reader-view" class="screen">
+        <button class="btn-home" onclick="goBack()">🏠</button>
+        <!-- Сюда будет загружаться папка с книгой -->
+        <iframe id="chapterFrame" class="reader-iframe" src="about:blank"></iframe>
     </div>
 
     <script>
@@ -67,13 +65,7 @@
         tg.expand();
         if (tg.disableVerticalSwipes) { tg.disableVerticalSwipes(); }
 
-        const pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-
-        let pdfDoc = null;
-        let currentPageNum = 1;
-        let totalPages = 0;
-
+        // Генерация кнопок меню
         const grid = document.getElementById('chaptersGrid');
         for (let i = 1; i <= 9; i++) {
             const btn = document.createElement('button');
@@ -84,73 +76,19 @@
         }
 
         function openChapter(num) {
-            const pdfFile = `kappale${num}.pdf`;
+            // Открываем файл-читалку из папки с главой
+            // Например: kappale1/index.html
+            const chapterPath = `kappale${num}/index.html`;
+            
             document.getElementById('main-menu').classList.remove('active');
-            document.getElementById('lesson-view').classList.add('active');
-            loadPdf(pdfFile);
-        }
-
-        async function loadPdf(pdfFile) {
-            pdfDoc = null;
-            currentPageNum = 1;
-            try {
-                const loadingTask = pdfjsLib.getDocument(pdfFile);
-                pdfDoc = await loadingTask.promise;
-                totalPages = pdfDoc.numPages;
-                renderPage(currentPageNum);
-            } catch (error) {
-                console.error("Ошибка загрузки PDF:", error);
-                alert(`Не удалось загрузить ${pdfFile}.`);
-                goBack();
-            }
-        }
-
-        async function renderPage(num) {
-            if (!pdfDoc) return;
-            const page = await pdfDoc.getPage(num);
-            const container = document.getElementById('pdfContainer');
-            const containerWidth = container.clientWidth; 
-            
-            const viewport = page.getViewport({ scale: 1 });
-            const scale = containerWidth / viewport.width;
-            const scaledViewport = page.getViewport({ scale: scale });
-
-            const canvas = document.getElementById('pdfCanvas');
-            const context = canvas.getContext('2d');
-            
-            const outputScale = window.devicePixelRatio || 1;
-            canvas.width = Math.floor(scaledViewport.width * outputScale);
-            canvas.height = Math.floor(scaledViewport.height * outputScale);
-            
-            canvas.style.width = Math.floor(scaledViewport.width) + "px";
-            canvas.style.height = Math.floor(scaledViewport.height) + "px";
-
-            const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
-
-            await page.render({ canvasContext: context, transform: transform, viewport: scaledViewport }).promise;
-
-            const btnPrev = document.getElementById('btnPrev');
-            btnPrev.classList.toggle('disabled', num === 1);
-            container.scrollTop = 0;
-        }
-
-        function changePage(direction) {
-            if (!pdfDoc) return;
-            const newPage = currentPageNum + direction;
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPageNum = newPage;
-                renderPage(currentPageNum);
-            }
+            document.getElementById('reader-view').classList.add('active');
+            document.getElementById('chapterFrame').src = chapterPath;
         }
 
         function goBack() {
-            document.getElementById('lesson-view').classList.remove('active');
+            document.getElementById('reader-view').classList.remove('active');
             document.getElementById('main-menu').classList.add('active');
-            
-            const canvas = document.getElementById('pdfCanvas');
-            const context = canvas.getContext('2d');
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            pdfDoc = null;
+            document.getElementById('chapterFrame').src = 'about:blank';
         }
     </script>
 </body>
